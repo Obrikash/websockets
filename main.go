@@ -7,7 +7,7 @@ import (
 
 func main() {
 	setupAPI()
-
+	log.Println("Starting server on localhost:8080")
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
 

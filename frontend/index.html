@@ -3,6 +3,7 @@
 <html lang="en">
     <head>
         <title>Websockets</title>
+        
     </head>
 
     <body>
@@ -28,40 +29,7 @@
                 <input type="submit" value="Send message"> 
             </form>
         </div>
-        
-        <script>
-            let selectedChat = "general";
-
-            const changeChatRoom = () => {
-                let newchat = document.getElementById("chatroom");
-                if (newchat !== null && newchat.value !== selectedChat) {
-                    console.log(newchat);
-                }
-                return false;
-            };
-
-            const sendMessage = () => {
-                let newMessage = document.getElementById("message");
-                if (newMessage !== null) {
-                    console.log(newMessage);
-                }
-                return false;
-            }
-
-            window.onload = () => {
-                document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
-                document.getElementById("chatroom-message").onsubmit = sendMessage;
-
-                if (window["WebSocket"]) {
-                    console.log("supports websockets");
-
-                    let conn = new WebSocket("ws://" + document.location.host + "/ws");
-                } else {
-                    alert('Browser does not support websockets')
-                }
-            }
-        </script>
-        
+        <script src="script.js"></script>
     </body>
 </html>
 
