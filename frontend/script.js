@@ -107,7 +107,7 @@ const connectWebsocket = (otp) => {
   if (window["WebSocket"]) {
     console.log("supports websockets");
 
-    conn = new WebSocket("ws://" + document.location.host + "/ws?otp=" + otp);
+    conn = new WebSocket("wss://" + document.location.host + "/ws?otp=" + otp);
 
     conn.onopen = (evt) => {
       document.getElementById("connection-header").innerHTML =
