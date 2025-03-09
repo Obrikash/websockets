@@ -5,6 +5,28 @@ class Event {
     this.payload = payload;
   }
 }
+
+class SendMessageEvent {
+  constructor(message, from) {
+    this.message = message;
+    this.from = from;
+  }
+}
+
+class NewMessageEvent {
+  constructor(message, from, sent) {
+    this.message = message;
+    this.from = from;
+    this.sent = sent;
+  }
+}
+
+class changeChatRoomEvent {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
 let conn;
 let selectedChat = "general";
 const routeEvent = (event) => {
@@ -14,11 +36,21 @@ const routeEvent = (event) => {
 
   switch (event.type) {
     case "new_message":
-      console.log("new message");
+      const messageEvent = Object.assign(new NewMessageEvent(), event.payload);
+      appendChatMessage(messageEvent);
       break;
     default:
       alert("unsuppported message");
   }
+};
+
+const appendChatMessage = (messageEvent) => {
+  var date = new Date(messageEvent.sent);
+  const formattedMsg = `${date.toLocaleString()}: ${messageEvent.message}`;
+
+  textarea = document.getElementById("chatmessages");
+  textarea.innerHTML = textarea.innerHTML + "\n" + formattedMsg;
+  textarea.scrollTop = textarea.scrollHeight;
 };
 
 const sendEvent = (eventName, payload) => {
@@ -27,10 +59,20 @@ const sendEvent = (eventName, payload) => {
   conn.send(JSON.stringify(event));
 };
 
-const changeChatRoom = () => {
+const changeChatRoom = (event) => {
+  event.preventDefault(); // Prevent form submission
   let newchat = document.getElementById("chatroom");
   if (newchat !== null && newchat.value !== selectedChat) {
-    console.log(newchat);
+    selectedChat = newchat.value;
+    header = document.getElementById("chat-header").innerHTML =
+      "Currently in chatroom: " + selectedChat;
+
+    let changeEvent = new changeChatRoomEvent(selectedChat);
+
+    sendEvent("change_room", changeEvent);
+
+    textarea = document.getElementById("chatmessages");
+    textarea.innerHTML = `You changed room into: ${selectedChat}`;
   }
   return false;
 };
@@ -92,7 +134,8 @@ const connectWebsocket = (otp) => {
 const sendMessage = () => {
   let newMessage = document.getElementById("message");
   if (newMessage !== null) {
-    sendEvent("send_message", newMessage.value);
+    let outgoingEvent = new SendMessageEvent(newMessage.value, "percy");
+    sendEvent("send_message", outgoingEvent);
   }
   return false;
 };
