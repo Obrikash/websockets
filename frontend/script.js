@@ -35,22 +35,47 @@ const changeChatRoom = () => {
   return false;
 };
 
-const sendMessage = () => {
-  let newMessage = document.getElementById("message");
-  if (newMessage !== null) {
-    sendEvent("send_message", newMessage.value);
-  }
+const login = () => {
+  let formData = {
+    username: document.getElementById("username").value,
+    password: document.getElementById("password").value,
+  };
+  fetch("login", {
+    method: "post",
+    body: JSON.stringify(formData),
+    mode: "cors",
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw "unauthorized";
+      }
+    })
+    .then((data) => {
+      connectWebsocket(data.otp);
+    })
+    .catch((e) => {
+      alert(e);
+    });
   return false;
 };
 
-window.onload = () => {
-  document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
-  document.getElementById("chatroom-message").onsubmit = sendMessage;
-
+const connectWebsocket = (otp) => {
   if (window["WebSocket"]) {
     console.log("supports websockets");
 
-    conn = new WebSocket("ws://" + document.location.host + "/ws");
+    conn = new WebSocket("ws://" + document.location.host + "/ws?otp=" + otp);
+
+    conn.onopen = (evt) => {
+      document.getElementById("connection-header").innerHTML =
+        "Connected to WebSocket: true";
+    };
+
+    conn.onclose = (evt) => {
+      document.getElementById("connection-header").innerHTML =
+        "Connected to WebSocket: false";
+    };
 
     conn.onmessage = (evt) => {
       const eventData = JSON.parse(evt.data);
@@ -62,4 +87,18 @@ window.onload = () => {
   } else {
     alert("Browser does not support websockets");
   }
+};
+
+const sendMessage = () => {
+  let newMessage = document.getElementById("message");
+  if (newMessage !== null) {
+    sendEvent("send_message", newMessage.value);
+  }
+  return false;
+};
+
+window.onload = () => {
+  document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
+  document.getElementById("chatroom-message").onsubmit = sendMessage;
+  document.getElementById("login-form").onsubmit = login;
 };
